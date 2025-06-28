@@ -1,0 +1,40 @@
+name: Build the ESP-IDF Project
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on tag create like v1.0, v2.0.0 and so on
+  push:
+    tags:
+      - 'v*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: esp-idf build
+      uses: espressif/esp-idf-ci-action@v1
+      with:
+        esp_idf_version: v5.1
+        target: esp32
+        path: '.'
+    - name: Upload firmware binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: esp32-firmware
+        path: |
+          build/*.bin
+          build/*.elf
+          build/*.map
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
+        files: |
+          build/*.bin
+          build/*.elf
+          build/*.map
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
