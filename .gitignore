@@ -1,6 +1,7 @@
 #esp-idf build files
 dependencies.lock
 .env
+managed_components/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
