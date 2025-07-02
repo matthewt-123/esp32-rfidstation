@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 int read_sensor();
+char *read_rfid();
 
 #ifdef __cplusplus
 }

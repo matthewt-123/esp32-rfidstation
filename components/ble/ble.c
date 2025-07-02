@@ -2,8 +2,11 @@
 #include "sensors.h"
 #include "esp_nimble_hci.h"
 
+/* Global Variable Declarations */
 static const char* LOG_TAG = "BLE";
 char name[14] = "Matthew-esp32";
+char sensor_value[50] = "";
+char rfid_value[50] = "";
 
 /*********
  * Define UUIDs
@@ -18,11 +21,10 @@ static const ble_uuid128_t gatt_svr_chr_sensor_uuid =
     BLE_UUID128_INIT(0x2b, 0xce, 0x46, 0xcc, 0x09, 0xb3, 0xb5, 0x8a, 0xb1, 0x47, 0x16, 0x25, 0xa7, 0x3f, 0x45, 0x85);
 
 //!! Characteristic UUID: ee4c2466-c729-4693-a087-d6082f04774a
-// static const ble_uuid128_t gatt_svr_chr_rfid_uuid =
-//     BLE_UUID128_INIT(0x4a, 0x77, 0x04, 0x2f, 0x08, 0xd6, 0x87, 0xa0, 0x93, 0x46, 0x29, 0xc7, 0x66, 0x24, 0x4c, 0xee);
+static const ble_uuid128_t gatt_svr_chr_rfid_uuid =
+    BLE_UUID128_INIT(0x4a, 0x77, 0x04, 0x2f, 0x08, 0xd6, 0x87, 0xa0, 0x93, 0x46, 0x29, 0xc7, 0x66, 0x24, 0x4c, 0xee);
 
 
-char characteristic_value[50] = "";
 
 /*********
  * ble_gatt_svc_def: defines GATT attribute table.
@@ -39,10 +41,17 @@ int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle, struct ble_g
         assert(ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR); //can only read this attribute
         //respond with sensor value from components/sensors
         int sensorVal = read_sensor();
-        snprintf(characteristic_value, 50, "%d", sensorVal); 
-        rc = os_mbuf_append(ctxt->om, &characteristic_value, sizeof characteristic_value);
+        snprintf(sensor_value, 50, "%d", sensorVal); 
+        rc = os_mbuf_append(ctxt->om, &sensor_value, sizeof sensor_value);
         return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
         
+    } 
+    else if (ble_uuid_cmp(uuid, &gatt_svr_chr_rfid_uuid.u) == 0)
+    {
+        assert(ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR); //can only read this attribute
+        char *rfid = read_rfid();
+        rc = os_mbuf_append(ctxt->om, rfid, strlen(rfid));
+        return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
     }
     /* Unknown characteristic */
     assert (0);
@@ -63,6 +72,11 @@ const struct ble_gatt_svc_def gatt_svr_svcs[] = {
                 .uuid = &gatt_svr_chr_sensor_uuid.u,
                 .access_cb = gatt_svr_chr_access,
                 // .val_handle = &notification_handle,
+                .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_NOTIFY
+            },
+            {
+                .uuid = &gatt_svr_chr_rfid_uuid.u,
+                .access_cb = gatt_svr_chr_access,
                 .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_NOTIFY
             },
             {
