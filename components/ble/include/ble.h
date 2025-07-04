@@ -29,6 +29,7 @@ void esp_bt_print_conn_desc(struct ble_gap_conn_desc *desc);
 int configure_ble();
 void ble_app_on_sync(void);
 void ble_host_task(void *param);
+void vTaskSendNotification();
 
 
 #ifdef __cplusplus

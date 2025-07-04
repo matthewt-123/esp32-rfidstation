@@ -13,12 +13,17 @@
 #include "sdkconfig.h"
 #include "common.h"
 #include "ble.h"
+#include "ota.h"
 
 void app_main(void) {
 
     /* Initialize BLE and pin to Core 0 */
     configure_ble();
     nimble_port_freertos_init(ble_host_task);
+    xTaskCreate(vTaskSendNotification, "vTaskSendNotification", 4096, NULL, 2, &xHandle);
+    #ifdef CONFIG_WIFI_ENABLE
+    wifi_config();
+    #endif //WIFI_ENABLE
 }
 
 

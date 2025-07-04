@@ -1,0 +1,9 @@
+menu "ESP32 BLE Defaults"
+
+    config ESP_BT_DEFAULT_NAME
+        string "ESP Default Bluetooth Name"
+        default "Default ESP32 Device"
+        help
+            Default name of ESP32
+
+endmenu

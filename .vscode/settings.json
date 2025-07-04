@@ -28,6 +28,10 @@
     "ble_svc_gap.h": "c",
     "esp_nimble_hci.h": "c",
     "ble_hs.h": "c",
-    "common.h": "c"
+    "common.h": "c",
+    "task.h": "c",
+    "esp_mac.h": "c",
+    "esp_event.h": "c",
+    "esp_system.h": "c"
   }
 }

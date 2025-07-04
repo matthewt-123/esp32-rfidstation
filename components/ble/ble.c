@@ -7,6 +7,11 @@ static const char* LOG_TAG = "BLE";
 char name[14] = "Matthew-esp32";
 char sensor_value[50] = "";
 char rfid_value[50] = "";
+//Notif vars
+TaskHandle_t xHandle = NULL;
+uint16_t conn_handle;
+uint16_t notification_handle;
+bool notify_state;
 
 /*********
  * Define UUIDs
@@ -27,8 +32,8 @@ static const ble_uuid128_t gatt_svr_chr_rfid_uuid =
 
 
 /*********
- * ble_gatt_svc_def: defines GATT attribute table.
- *  All characteristics must be included in .characteristics
+ * gatt_svr_chr_access: defines callback
+ *  Configures functions to run and data to return on BLE read
  *********/
 int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg)
 {
@@ -59,7 +64,7 @@ int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle, struct ble_g
 };
 
 /*********
- * ble_gatt_svc_def: defines GATT attribute table.
+ * gatt_svr_svcs: defines GATT attribute table.
  *  All characteristics must be included in .characteristics
  *********/
 const struct ble_gatt_svc_def gatt_svr_svcs[] = {
@@ -72,7 +77,7 @@ const struct ble_gatt_svc_def gatt_svr_svcs[] = {
                 .uuid = &gatt_svr_chr_sensor_uuid.u,
                 .access_cb = gatt_svr_chr_access,
                 // .val_handle = &notification_handle,
-                .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_NOTIFY
+                .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_NOTIFY 
             },
             {
                 .uuid = &gatt_svr_chr_rfid_uuid.u,
@@ -89,6 +94,10 @@ const struct ble_gatt_svc_def gatt_svr_svcs[] = {
     }
 };
 
+/*********
+ * esp_bt_advertise: begins advertising with name configured in config
+ *  Logs when advertisement set and start
+ *********/
  void esp_bt_advertise(void)
 {
     struct ble_hs_adv_fields fields;
@@ -118,6 +127,10 @@ const struct ble_gatt_svc_def gatt_svr_svcs[] = {
     ESP_LOGI(LOG_TAG, "Advertising started");
 }
 
+/************************************
+ * esp_bt_gap_event: Controls connection and disconnect processes
+ *  ESP32 stops advertising on connect and begins advertising on disconnect
+ ************************************/
 int esp_bt_gap_event(struct ble_gap_event *event, void *arg)
 {
     struct ble_gap_conn_desc desc;
@@ -149,9 +162,9 @@ int esp_bt_gap_event(struct ble_gap_event *event, void *arg)
     return 2;
 };
 
-/**
+/************************************
  * Logs information about a connection
- */
+ ************************************/
  void esp_bt_print_conn_desc(struct ble_gap_conn_desc *desc)
 {
     ESP_LOGI(LOG_TAG, "handle=%d our_ota_addr_type=%d our_ota_addr=",
@@ -173,12 +186,12 @@ int esp_bt_gap_event(struct ble_gap_event *event, void *arg)
 
 
 /**************************
- * Configure BLE: 
+ * Configure BLE: Initialize NVS, HCI, and name
 **************************/
 int configure_ble() 
 {
     int rc;
-    /* Initialize NVS */
+    /* NVS: Initialize */
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
@@ -200,26 +213,42 @@ int configure_ble()
 
     ESP_LOGI(LOG_TAG, "configured with rc=%d", rc);
     return rc;
-    // /* Start advertising */
-
-    // struct ble_gap_adv_params adv_params;
-
-    // /* set adv parameters */
-    // memset(&adv_params, 0, sizeof(adv_params));
-    // adv_params.conn_mode = BLE_GAP_CONN_MODE_NON;
-    // adv_params.disc_mode = BLE_GAP_DISC_MODE_GEN;
-
-    // return ble_gap_adv_start(BLE_OWN_ADDR_RANDOM, NULL, BLE_HS_FOREVER,
-    //     &adv_params, adv_event, NULL);
 };
 
+/**************************
+ * ble_app_on_sync: when configure_ble compeltes, this is called
+**************************/
 void ble_app_on_sync(void)
 {
     esp_bt_advertise();  // safe to advertise now
     ESP_LOGI(LOG_TAG, "advertising");
 };
 
+/**************************
+ * ble_host_task: RTOS task to manage BLE
+ *  Pinned to core 0 by default
+**************************/
 void ble_host_task(void *param) {
     nimble_port_run(); // This function never returns
     nimble_port_freertos_deinit();
 };
+
+void vTaskSendNotification()
+{
+    int rc;
+    struct os_mbuf *om;
+    while (1)
+    {
+        if (notify_state)
+        {
+            /* TODO: DUMMY CODE */
+            om = ble_hs_mbuf_from_flat(read_rfid(), strlen(read_rfid()));
+            rc = ble_gattc_notify_custom(conn_handle, notification_handle, om);
+            if (rc != 0) return;
+            notify_state = false;
+        }
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
+    }
+    // Should never exit
+    vTaskDelete(NULL);
+}
