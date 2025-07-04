@@ -3,6 +3,7 @@
 #include "common.h"
 #include "esp_system.h"
 #include "ota.h"
+#include "esp_ota_ops.h"
 
 /* Defines */
 #define WIFI_ENABLE
@@ -86,7 +87,7 @@ void wifiLogin(const char *ssid, const char *password)
     wifi_config.sta.ssid[sizeof(wifi_config.sta.ssid) - 1] = '\0';
     strncpy((char *)wifi_config.sta.password, password, sizeof(wifi_config.sta.password) - 1);
     wifi_config.sta.password[sizeof(wifi_config.sta.password) - 1] = '\0';
-    
+
     /* Set config */
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
 }
