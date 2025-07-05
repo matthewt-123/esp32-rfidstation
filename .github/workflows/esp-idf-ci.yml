@@ -21,7 +21,7 @@ jobs:
         esp_idf_version: v5.1
         target: esp32
         path: '.'
-        build-args: sdkconfig
+        command: 'idf.py -DSDKCONFIG=sdkconfig build'
     - name: Upload firmware binaries
       uses: actions/upload-artifact@v4
       with:
