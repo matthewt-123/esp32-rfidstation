@@ -1,2 +1,3 @@
-idf_component_register(SRCS "blink_example_main.c"
-                       INCLUDE_DIRS "." "../include")
+idf_component_register(SRCS "main.c"
+                       INCLUDE_DIRS "."
+                       REQUIRES ble common sensors ota)
