@@ -4,9 +4,11 @@
 
 /* Global Variable Declarations */
 static const char* LOG_TAG = "BLE";
-char name[14] = "Matthew-esp32";
+// char name[14] = "Matthew-esp32";
 char sensor_value[50] = "";
 char rfid_value[50] = "";
+
+
 //Notif vars
 TaskHandle_t xHandle = NULL;
 uint16_t conn_handle;
@@ -191,13 +193,7 @@ int esp_bt_gap_event(struct ble_gap_event *event, void *arg)
 int configure_ble() 
 {
     int rc;
-    /* NVS: Initialize */
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK(ret);
+
 
     /* BLE: Initialize HCI */
     if (nimble_port_init() != ESP_OK) return 1; //if NimBLE port init failed
@@ -208,7 +204,7 @@ int configure_ble()
     ble_gatts_add_svcs(gatt_svr_svcs);
 
     /* BLE: Name Device */
-    rc = ble_svc_gap_device_name_set("nimble-ble"); //!! Set the name of this device
+    rc = ble_svc_gap_device_name_set(deviceName); //!! Set the name of this device
     assert(rc == 0);
 
     ESP_LOGI(LOG_TAG, "configured with rc=%d", rc);

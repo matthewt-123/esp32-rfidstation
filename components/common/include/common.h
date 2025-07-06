@@ -4,9 +4,6 @@ common.h: includes used across all components
 
 #ifndef COMMON_H
 #define COMMON_H
-
-
-
 /* Includes */
 /* STD APIs */
 #include <assert.h>
@@ -23,6 +20,23 @@ common.h: includes used across all components
 /* FreeRTOS APIs */
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+
+/* Project Global Variables and Defines*/
+#define WIFI_SSID_MAX 32
+#define WIFI_PSK_MAX 64
+#define MAX_DEVICE_NAME_LENGTH 28
+#define MAX_MQTT_ENDPT_LENGTH 64
+
+extern char deviceName[MAX_DEVICE_NAME_LENGTH + 1];
+extern char ssid[WIFI_SSID_MAX + 1];
+extern char psk[WIFI_PSK_MAX + 1];
+extern char mqttEndpt[MAX_MQTT_ENDPT_LENGTH + 1];
+extern bool wifiEnable;
+extern bool rfidEnable;
+extern bool tempEnable;
+extern bool pressureEnable;
+extern bool humidityEnable;
+extern int16_t sampleRate;
 
 /* Interrupt Flag*/
 extern bool notify_state;

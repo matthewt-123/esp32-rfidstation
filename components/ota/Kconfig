@@ -67,5 +67,8 @@ menu "ESP32 Networking Defaults"
         config ESP_WIFI_AUTH_WAPI_PSK
             bool "WAPI PSK"
     endchoice
-
+    config DEBUG
+        bool "Enable DEBUG Mode"
+        help
+            Enable DEBUG mode for error logging and NVS init
 endmenu

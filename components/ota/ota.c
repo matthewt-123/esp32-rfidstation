@@ -43,10 +43,10 @@ void wifi_config()
                                                     ));
     
     /* Connect to WiFi */
-    const char *ssid = CONFIG_ESP_WIFI_SSID;
-    const char *password = CONFIG_ESP_WIFI_PASSWORD;
+    const char *default_ssid = CONFIG_ESP_WIFI_SSID;
+    const char *default_password = CONFIG_ESP_WIFI_PASSWORD;
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    wifiLogin(ssid, password);
+    wifiLogin(default_ssid, default_password);
     ESP_ERROR_CHECK(esp_wifi_start());
 }
 
