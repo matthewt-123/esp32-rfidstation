@@ -4,7 +4,7 @@
 
 /* Global Variable Declarations */
 static const char* LOG_TAG = "BLE";
-// char name[14] = "Matthew-esp32";
+
 char sensor_value[50] = "";
 char rfid_value[50] = "";
 
@@ -193,8 +193,6 @@ int esp_bt_gap_event(struct ble_gap_event *event, void *arg)
 int configure_ble() 
 {
     int rc;
-
-
     /* BLE: Initialize HCI */
     if (nimble_port_init() != ESP_OK) return 1; //if NimBLE port init failed
     ble_hs_cfg.sync_cb = ble_app_on_sync;
