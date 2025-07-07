@@ -1,22 +1,23 @@
-name: Build the ESP-IDF Project
-# Controls when the action will run. 
+name: Build the ESP‑IDF Project
+
 on:
-  # Triggers the workflow on tag create like v1.0, v2.0.0 and so on
   push:
     tags:
       - 'v*'
 
 permissions:           
   contents: write       
-  packages: write 
-  
+  packages: write   
+     
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
       with:
+        fetch-depth: 0
         submodules: 'recursive'
     - name: esp-idf build
       uses: espressif/esp-idf-ci-action@v1
@@ -35,11 +36,22 @@ jobs:
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref_name }}
+        tag_name: ${{ github.ref_name }}      
         name: Release ${{ github.ref_name }}
         files: |
           build/*.bin
           build/*.elf
           build/*.map
+        make_latest: true                     
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Move/update `latest` tag
+      if: startsWith(github.ref, 'refs/tags/v')  
+      run: |
+        git config --global user.name  "GitHub Actions"
+        git config --global user.email "actions@github.com"
+
+        # recreate the tag locally (delete if it already exists)
+        git tag -fa latest ${{ github.sha }} -m "Latest release -> ${{ github.ref_name }}"
+        # force‑push so the remote tag is updated
+        git push --force origin latest
