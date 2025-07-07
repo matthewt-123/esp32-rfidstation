@@ -45,13 +45,7 @@ jobs:
         make_latest: true                     
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Move/update `latest` tag
-      if: startsWith(github.ref, 'refs/tags/v')  
+    - name: Checkout latest release tag
       run: |
-        git config --global user.name  "GitHub Actions"
-        git config --global user.email "actions@github.com"
-
-        # recreate the tag locally (delete if it already exists)
-        git tag -fa latest ${{ github.sha }} -m "Latest release -> ${{ github.ref_name }}"
-        # force‑push so the remote tag is updated
-        git push --force origin latest
+        LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+        git checkout $LATEST_TAG
