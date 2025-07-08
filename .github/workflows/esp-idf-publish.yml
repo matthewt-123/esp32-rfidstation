@@ -1,4 +1,4 @@
-name: Build the ESP‑IDF Project
+name: ESP RFID Release Deployment
 
 on:
   push:
