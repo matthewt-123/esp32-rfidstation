@@ -1,10 +1,11 @@
-﻿name: Build the ESP-IDF Project
+﻿name: ESP RFID CI
 
 # Controls when the action will run. 
 on:
   # Triggers the workflow on tag create like v1.0, v2.0.0 and so on
   pull_request:
     branches: ["main"] 
+  workflow_dispatch:
 
 
 jobs:
