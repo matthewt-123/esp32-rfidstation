@@ -33,6 +33,9 @@ void app_main(void)
     xTaskCreate(vTaskSendNotification, "vTaskSendNotification", 4096, NULL, 2, &xHandle);
     
     if (wifiEnable) wifi_config();
+    #ifdef CONFIG_OTA_ENABLE
+    xTaskCreate(ota_task, "vTaskSendNotification", 4096, NULL, 3, &xHandle);
+    #endif
 }
 
 void loadNvsIntoRAM()
@@ -55,17 +58,20 @@ void loadNvsIntoRAM()
     _loadStrValue(nvsHandle, "wifi_psk", psk, WIFI_PSK_MAX, CONFIG_ESP_WIFI_PASSWORD);
     _loadStrValue(nvsHandle, "mqttEndpt", mqttEndpt, MAX_MQTT_ENDPT_LENGTH, "");
 
-    _loadBoolValue(nvsHandle, "wifiEnable", wifiEnable, true);
-    _loadBoolValue(nvsHandle, "rfidEnable", rfidEnable, false);
-    _loadBoolValue(nvsHandle, "tempEnable", tempEnable, false);
-    _loadBoolValue(nvsHandle, "pressureEnable", pressureEnable, false);
-    _loadBoolValue(nvsHandle, "humidityEnable", humidityEnable, false);
+    _loadBoolValue(nvsHandle, "wifiEnable", &wifiEnable, true);
+    _loadBoolValue(nvsHandle, "rfidEnable", &rfidEnable, false);
+    _loadBoolValue(nvsHandle, "tempEnable", &tempEnable, false);
+    _loadBoolValue(nvsHandle, "pressureEnable", &pressureEnable, false);
+    _loadBoolValue(nvsHandle, "humidityEnable", &humidityEnable, false);
+
+    nvs_close(nvsHandle);
 }
 
 void _loadStrValue(nvs_handle_t nvsHandle, const char* key, char *value, size_t val_len, char *defaultVal)
 {
     esp_err_t err;
     err = nvs_get_str(nvsHandle, key, value, &val_len);
+    ESP_LOGI(LOG_TAG, "%s stored: \"%s\"", key, value);
     if (err == ESP_ERR_NVS_NOT_FOUND) {
         strlcpy(value, defaultVal, val_len);
     }
@@ -75,7 +81,7 @@ void _loadBoolValue(nvs_handle_t nvsHandle, const char* key, bool *value, bool d
 {
     esp_err_t err;
     int8_t output;
-    err = nvs_get_i8(nvsHandle, key, output);
+    err = nvs_get_i8(nvsHandle, key, &output);
     if (err == ESP_ERR_NVS_NOT_FOUND) {
         *value = defaultVal;
     }

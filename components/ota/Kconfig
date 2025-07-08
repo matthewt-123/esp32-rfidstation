@@ -77,7 +77,7 @@ menu "ESP32 WiFi/OTA Settings"
             Enable OTA for automated updates based on GitHub releases
     config FIRMWARE_UPGRADE_URL
         string "Firmware Upgrade URL"
-        default "https://192.168.2.106:8070/hello_world.bin"
+        default "https://github.com/tsaimatthew/esp32-rfidstation/releases/latest/download/esp-bt.bin"
         help
             URL of server which hosts the firmware image.
 endmenu
