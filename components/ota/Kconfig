@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 menu "ESP32 WiFi/OTA Settings"
+=======
+menu "ESP32 Networking Defaults"
+>>>>>>> main
 
     config WIFI_ENABLE
         bool "Enable Wifi"

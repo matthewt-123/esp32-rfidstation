@@ -4,6 +4,12 @@ common.h: includes used across all components
 
 #ifndef COMMON_H
 #define COMMON_H
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> main
 /* Includes */
 /* STD APIs */
 #include <assert.h>

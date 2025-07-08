@@ -9,7 +9,6 @@ ble.h: providing API to communicate with BLE
 extern "C" {
 #endif
 #include "common.h"
-
 /* NimBLE stack APIs */
 #include "host/ble_hs.h"
 #include "host/ble_uuid.h"
