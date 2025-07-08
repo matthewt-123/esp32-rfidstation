@@ -3,7 +3,7 @@ dependencies.lock
 .env
 managed_components/
 main/idf_comoponent.yml
-
+sdkconfig
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
